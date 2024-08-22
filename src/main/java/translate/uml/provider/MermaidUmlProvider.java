@@ -40,6 +40,41 @@ public class MermaidUmlProvider implements IUmlProvider {
 
     private void writeAssociations(StringBuilder sb) {
 
+        for(ClassOrInterfaceDeclaration c: umlTranslator.getInterfaceSet()) {
+            for (ClassOrInterfaceType e : c.getExtendedTypes()) {
+                sb.append(c.getName());
+                sb.append(" --|> ");
+                sb.append(e.getName());
+                sb.append("\n");
+            }
+            //implemented types
+            for(ClassOrInterfaceType e: c.getImplementedTypes()){
+
+                sb.append(c.getName());
+                sb.append(" ..|> ");
+                sb.append(e.getName());
+                sb.append("\n");
+            }
+
+        }
+
+        for(ClassOrInterfaceDeclaration c: umlTranslator.getClassSet()) {
+            for (ClassOrInterfaceType e : c.getExtendedTypes()) {
+                sb.append(c.getName());
+                sb.append(" --|> ");
+                sb.append(e.getName());
+                sb.append("\n");
+            }
+            //implemented types
+            for(ClassOrInterfaceType e: c.getImplementedTypes()){
+
+                sb.append(c.getName());
+                sb.append(" ..|> ");
+                sb.append(e.getName());
+                sb.append("\n");
+            }
+        }
+
         HashSet<String> temp = new HashSet<>();
         for(ClassOrInterfaceDeclaration c: this.umlTranslator.getClassSet()){
             temp.add(c.getNameAsString());
@@ -95,23 +130,6 @@ public class MermaidUmlProvider implements IUmlProvider {
 
         sb.append("\t}\n\n");
 
-        //implemented interfaces
-        for(ClassOrInterfaceType e: c.getImplementedTypes()){
-
-            sb.append(c.getName());
-            sb.append(" ..|> ");
-            sb.append(e.getName());
-            sb.append("\n");
-        }
-
-        //extended classes
-        for(ClassOrInterfaceType e: c.getExtendedTypes()){
-
-            sb.append(c.getName());
-            sb.append(" --|> ");
-            sb.append(e.getName());
-            sb.append("\n");
-        }
 
     }
 
@@ -176,6 +194,7 @@ public class MermaidUmlProvider implements IUmlProvider {
     }
 
     private void writeMethod(MethodDeclaration m, StringBuilder sb) {
+
         sb.append("\t\t");
         writeModifiers(m.getModifiers(),sb);
         sb.append(m.getName());
@@ -185,7 +204,7 @@ public class MermaidUmlProvider implements IUmlProvider {
 
             sb.append(p.getName());
             sb.append(" : ");
-            sb.append(p.getType().asString());
+            sb.append(extractAfterLastDot(p.getType().asString()));
             sb.append(", ");
         }
         if(!m.getParameters().isEmpty()){
@@ -194,7 +213,7 @@ public class MermaidUmlProvider implements IUmlProvider {
         }
         sb.append(")");
         sb.append(" : ");
-        sb.append(m.getType().asString());
+        sb.append(extractAfterLastDot(m.getType().asString()));
 
     }
 
@@ -221,7 +240,6 @@ public class MermaidUmlProvider implements IUmlProvider {
                 sb.append("\t\t");
                 sb.append(c.getName());
                 sb.append("\n");
-
             }
 
             sb.append("\t}\n\n");
@@ -259,15 +277,18 @@ public class MermaidUmlProvider implements IUmlProvider {
         }
 
         sb.append("\t}\n\n");
-
-        for(ClassOrInterfaceType e: c.getExtendedTypes()){
-
-            sb.append(c.getName());
-            sb.append(" --|> ");
-            sb.append(e.getName());
-            sb.append("\n");
+    }
+    public static String extractAfterLastDot(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
         }
 
+        int lastDotIndex = input.lastIndexOf('.');
 
+        if (lastDotIndex == -1 || lastDotIndex == input.length() - 1) {
+            return input;
+        }
+
+        return input.substring(lastDotIndex + 1);
     }
 }
