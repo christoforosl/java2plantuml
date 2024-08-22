@@ -9,13 +9,9 @@ import translate.IUmlProvider;
 
 import java.util.HashSet;
 
-public class PlantUmlProvider implements IUmlProvider {
+public class MermaidUmlProvider implements IUmlProvider {
     private ITranslator umlTranslator;
-
-    @Override
-    public String getExtension() {
-        return "puml";
-    }
+    private int indentLevel = 1;
 
     @Override
     public String getUML(ITranslator umlTranslator) {
@@ -24,20 +20,23 @@ public class PlantUmlProvider implements IUmlProvider {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("@startuml");
+        sb.append("classDiagram");
         sb.append("\n");
+        //this is for removing shapes in attributes/methods visibility
 
-        if(!umlTranslator.getConfig().isShowColoredAccessSpecifiers()) {
-            sb.append("skinparam classAttributeIconSize 0\n");
-        }
         writeClasses(sb);
-        writeAssociations(sb);
         writeInterfaces(sb);
         writeEnumerations(sb);
+        writeAssociations(sb);
 
-        sb.append("@enduml");
+        sb.append("\n");
 
         return sb.toString();
+    }
+
+    @Override
+    public String getExtension() {
+        return "mmd";
     }
 
     private void writeAssociations(StringBuilder sb) {
@@ -68,25 +67,19 @@ public class PlantUmlProvider implements IUmlProvider {
                     sb.append(f.getVariables().get(0).getType().asString());
                     sb.append("\n");
                 }
-
             }
-
         }
-
     }
 
-
     private void writeClasses(StringBuilder sb){
-
         for(ClassOrInterfaceDeclaration c: this.umlTranslator.getClassSet()){
             writeClass(c,sb);
         }
-
     }
 
     private void writeClass(ClassOrInterfaceDeclaration c,StringBuilder sb) {
 
-        sb.append("class ");
+        sb.append("\tclass ");
         sb.append(c.getName());
         sb.append("{");
         sb.append("\n");
@@ -101,7 +94,7 @@ public class PlantUmlProvider implements IUmlProvider {
             writeMethods(c, sb);
         }
 
-        sb.append("}\n");
+        sb.append("\t}\n\n");
 
         //implemented interfaces
         for(ClassOrInterfaceType e: c.getImplementedTypes()){
@@ -126,7 +119,6 @@ public class PlantUmlProvider implements IUmlProvider {
     private void writeAttributes(ClassOrInterfaceDeclaration c, StringBuilder sb) {
 
         for(FieldDeclaration f : c.getFields()){
-
             writeField(f,sb);
             sb.append("\n");
         }
@@ -134,7 +126,7 @@ public class PlantUmlProvider implements IUmlProvider {
     }
 
     private void writeField(FieldDeclaration f, StringBuilder sb) {
-
+        sb.append("\t\t");
         writeModifiers(f.getModifiers(),sb);
         sb.append(f.getVariables().get(0).getName());
         sb.append(" : ");
@@ -153,6 +145,7 @@ public class PlantUmlProvider implements IUmlProvider {
 
     private void writeConstructor(ConstructorDeclaration m, StringBuilder sb) {
 
+        sb.append("(\t\t");
         writeModifiers(m.getModifiers(),sb);
         sb.append(m.getName());
         sb.append("(");
@@ -184,7 +177,7 @@ public class PlantUmlProvider implements IUmlProvider {
     }
 
     private void writeMethod(MethodDeclaration m, StringBuilder sb) {
-
+        sb.append("\t\t");
         writeModifiers(m.getModifiers(),sb);
         sb.append(m.getName());
         sb.append("(");
@@ -210,14 +203,10 @@ public class PlantUmlProvider implements IUmlProvider {
 
         for(Modifier mod:modifiers){
             switch (mod.getKeyword()) {
-                case STATIC -> sb.append("{static} ");
-                case ABSTRACT -> sb.append("{abstract} ");
-                case PUBLIC -> sb.append("+ ");
-                case PRIVATE -> sb.append("- ");
-                case PROTECTED -> sb.append("# ");
-
-                //TODO:package visibility not shown yet
-                case DEFAULT -> sb.append("~ ");
+                case PUBLIC -> sb.append("+");
+                case PRIVATE -> sb.append("-");
+                case PROTECTED -> sb.append("#");
+                case DEFAULT -> sb.append("");
             }
         }
 
@@ -226,18 +215,18 @@ public class PlantUmlProvider implements IUmlProvider {
     private void writeEnumerations(StringBuilder sb){
 
         for(EnumDeclaration e: this.umlTranslator.getEnumSet()){
-            sb.append("enum ");
+            sb.append("\tclass ");
             sb.append(e.getName());
-            sb.append("{\n");
+            sb.append("{\n\t\t<<enumeration>>\n");
 
             for(EnumConstantDeclaration c: e.getEntries()){
-
+                sb.append("\t\t");
                 sb.append(c.getName());
                 sb.append("\n");
 
             }
 
-            sb.append("}\n");
+            sb.append("\t}\n\n");
         }
 
     }
@@ -252,12 +241,13 @@ public class PlantUmlProvider implements IUmlProvider {
 
     private void writeInterface(ClassOrInterfaceDeclaration c,StringBuilder sb) {
 
-        sb.append("interface ");
+        sb.append("\tclass ");
         sb.append(c.getName());
         sb.append("{");
         sb.append("\n");
 
-//        for(ClassOrInterfaceDeclaration c1:c.get)
+        sb.append("\t\t<<interface>>");
+        sb.append("\n");
 
         //attributes
         if (this.umlTranslator.getConfig().isShowAttributes()){
@@ -270,7 +260,7 @@ public class PlantUmlProvider implements IUmlProvider {
             writeMethods(c, sb);
         }
 
-        sb.append("}\n");
+        sb.append("\t}\n\n");
 
         for(ClassOrInterfaceType e: c.getExtendedTypes()){
 

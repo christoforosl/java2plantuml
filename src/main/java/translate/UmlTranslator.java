@@ -9,13 +9,14 @@ import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import lombok.Data;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
+@Data
 public class UmlTranslator implements ITranslator {
-    private Set<ClassOrInterfaceDeclaration> classSet;
+    private final Set<ClassOrInterfaceDeclaration> classSet;
     private Set<ClassOrInterfaceDeclaration> interfaceSet;
     private Set<EnumDeclaration> enumSet;
     private Boolean error=false;
@@ -26,10 +27,6 @@ public class UmlTranslator implements ITranslator {
         classSet = new HashSet<>();
         interfaceSet = new HashSet<>();
         enumSet = new HashSet<>();
-    }
-
-    public void setConfig(ClassDiagramConfig config) {
-        this.config = config;
     }
 
     @Override
@@ -89,7 +86,7 @@ public class UmlTranslator implements ITranslator {
 
     public String toUml(){
 
-        return ((IUmlProvider)this.getUmlProvider()).getUML(this);
+        return ((IUmlProvider)config.getUmlProvider()).getUML(this);
 
     }
 

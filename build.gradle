@@ -13,6 +13,11 @@ repositories {
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.github.javaparser:javaparser-core:3.26.1'
+    compileOnly 'org.projectlombok:lombok:1.18.24'  // Use the latest version
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 application {

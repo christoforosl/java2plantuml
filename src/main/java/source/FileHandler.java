@@ -1,33 +1,27 @@
 package source;
 
-import com.github.javaparser.ast.CompilationUnit;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import translate.ITranslator;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
+@RequiredArgsConstructor
 public class FileHandler {
 
-    private ITranslator translator;
-
-    public FileHandler(ITranslator translator){
-        this.translator=translator;
-    }
+    @Getter
+    private final ITranslator translator;
 
     void handle(File f){
 
         System.out.println("File Found: " +f.getName());
 
-        CompilationUnit cu = null;
         try {
             translator.translateFile(new File(f.getAbsolutePath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
         } catch (Exception e){
             translator.setError(true);
         }
-
     }
-
 
 }

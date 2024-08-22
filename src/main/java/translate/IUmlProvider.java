@@ -1,6 +1,6 @@
 package translate;
 
 public interface IUmlProvider {
-    String getUML(UmlTranslator umlTranslator);
-
+    String getUML(ITranslator umlTranslator);
+    String getExtension();
 }
