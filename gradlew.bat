@@ -47,7 +47,7 @@ goto fail
 
 :init
 @rem Get command-line arguments, handling Windows variants
-
+echo In Init, JAVA_HOME is %JAVA_HOME%
 if not "%OS%" == "Windows_NT" goto win9xME_args
 
 :win9xME_args
@@ -64,7 +64,7 @@ set CMD_LINE_ARGS=%*
 @rem Setup the command line
 
 set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
-
+echo In Init, executing -- "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% --
 @rem Execute Gradle
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
 

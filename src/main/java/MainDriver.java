@@ -10,32 +10,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 public class MainDriver {
+    public static void main(String[] args) throws Exception {
 
-
-    public static void main(String[] args){
-
-        String sourcePath="src/main/java/";
         if(args.length<1){
             System.out.println("Need to pass path of source as argument");
             System.exit(1);
         }
 
-        for(int i=0;i<args.length;){
-
-            switch (args[i]){
-
-                default:
-                    System.out.println(args[i]);
-                    sourcePath=args[i];
-                    i++;
-                    break;
-
-            }
-
-        }
-
-        try {
-
+        for(final String sourcePath : args){
+            System.out.println("Processing:" + sourcePath);
             UmlTranslator umlTranslator=new UmlTranslator();
             ClassDiagramConfig config= new ClassDiagramConfig.Builder()
                     .withVisitor(new ClassVisitor(umlTranslator))
@@ -48,27 +31,21 @@ public class MainDriver {
             umlTranslator.setConfig(config);
 
             FileHandler handler = new FileHandler(umlTranslator);
-
             File resourceDir = new File(sourcePath);
-            if(resourceDir.exists()){
+
+            if(resourceDir.exists()) {
                 new DirectoryExplorer(handler).explore(resourceDir);
-            }
-            else{
+
+                File umlOutputFile = new File(sourcePath+ File.separator + "output.puml");
+                FileOutputStream fos = new FileOutputStream(umlOutputFile);
+                fos.write(umlTranslator.toUml().getBytes());
+                fos.close();
+                System.out.println("PlantUml syntax generated to output file:" + umlOutputFile.getAbsolutePath());
+            } else {
                 System.out.println("File/Folder doesn't exist!");
                 System.exit(1);
             }
-
-            File f = new File("output.puml");
-            FileOutputStream fos = new FileOutputStream(f);
-            fos.write(umlTranslator.toPlantUml().getBytes());
-            fos.close();
-            System.out.println("PlantUml syntax generated in output file.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-
     }
-
 }
+

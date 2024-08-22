@@ -1,15 +1,14 @@
 package visitors;
 
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import translate.Translator;
+import translate.ITranslator;
 
 public class EnumVisitor extends VoidVisitorAdapter<Void> {
 
-    private Translator translator;
+    private ITranslator translator;
 
-    public EnumVisitor(Translator translator){
+    public EnumVisitor(ITranslator translator){
         this.translator=translator;
     }
 

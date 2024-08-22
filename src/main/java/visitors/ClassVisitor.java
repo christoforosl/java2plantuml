@@ -2,13 +2,13 @@ package visitors;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import translate.Translator;
+import translate.ITranslator;
 
 public class ClassVisitor extends VoidVisitorAdapter<Void> {
 
-    private Translator translator;
+    private ITranslator translator;
 
-    public ClassVisitor(Translator translator){
+    public ClassVisitor(ITranslator translator){
         this.translator=translator;
     }
 

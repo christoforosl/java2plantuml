@@ -7,9 +7,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.Serializable;
 
-public interface Translator{
+public interface ITranslator {
 
     public void addClass(ClassOrInterfaceDeclaration c);
     public void addEnum(EnumDeclaration c);
@@ -18,5 +17,6 @@ public interface Translator{
     public void addMethod(MethodDeclaration d);
     public void setError(Boolean b);
     public void translateFile(File f) throws FileNotFoundException;
+    public String toUml();
 
 }

@@ -48,7 +48,7 @@ public class ClassDiagramConfig {
     }
 
     //builder
-    public static class Builder implements UmlConfigBuilder{
+    public static class Builder implements IUmlConfigBuilder {
 
         //default values for attributes
         private List<VoidVisitorAdapter<Void>> visitorAdapters=new ArrayList<>();
@@ -84,6 +84,7 @@ public class ClassDiagramConfig {
             config.setShowAttributes(showAttributes);
             config.setShowColoredAccessSpecifiers(showColoredAccessSpecifiers);
             config.setShowMethods(showMethods);
+
             return config;
         }
     }

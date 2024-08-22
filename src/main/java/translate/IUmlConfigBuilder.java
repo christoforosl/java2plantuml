@@ -1,6 +1,6 @@
 package translate;
 
-public interface UmlConfigBuilder {
+public interface IUmlConfigBuilder {
 
     public ClassDiagramConfig build();
 

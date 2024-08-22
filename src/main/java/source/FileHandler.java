@@ -1,20 +1,18 @@
 package source;
 
 import com.github.javaparser.ast.CompilationUnit;
-import translate.Translator;
+import translate.ITranslator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class FileHandler {
 
-    private Translator translator;
+    private ITranslator translator;
 
-    public FileHandler(Translator translator){
+    public FileHandler(ITranslator translator){
         this.translator=translator;
     }
-
-
 
     void handle(File f){
 

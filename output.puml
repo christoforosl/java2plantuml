@@ -1,114 +1,157 @@
 @startuml
 skinparam classAttributeIconSize 0
-class FileHandler{
-- translator : Translator
-+ FileHandler(translator : Translator)
-handle(f : File) : void
+class OnlineApplication{
+- onlineApplicationId : Long
+- applicationJson : byte[]
+- applicationStatusId : Long
+- applicationTypeId : Long
+- downloadError : String
+- downloadDate : java.time.LocalDateTime
+- userAgent : String
+- applicantIpAddress : String
+- applicantCyloginUniqueIdentifier : String
+- applicationNumber : Long
+- application : cy.gov.mlsi.sis.benefits.model.application.Application
++ setApplicationStatusId(status : long) : void
++ setApplicationStatusId(status : cy.gov.mlsi.sis.benefits.model.application.enums.EnumApplicationStatus) : void
++ getApplicationStatus() : cy.gov.mlsi.sis.benefits.model.application.enums.EnumApplicationStatus
++ setApplicationTypeId(status : long) : void
++ setApplicationTypeId(status : cy.gov.mlsi.sis.benefits.model.application.enums.EnumApplicationType) : void
++ getApplicationType() : cy.gov.mlsi.sis.benefits.model.application.enums.EnumApplicationType
++ isDraft() : boolean
++ getApplication() : cy.gov.mlsi.sis.benefits.model.application.Application
 }
-class EnumVisitor{
-- translator : Translator
-+ EnumVisitor(translator : Translator)
-+ visit(n : EnumDeclaration, arg : Void) : void
+OnlineApplication --|> AuditableEntity
+class ApplicationNumber{
+- value : long
++ {static} of(value : long) : ApplicationNumber
++ {static} of(value : String) : ApplicationNumber
 }
-EnumVisitor --|> VoidVisitorAdapter
-class DefaultDirector{
-+ construct() : ClassDiagramConfig
+class Application{
+- applicant : ApplicationIndividual
+- applicationType : EnumApplicationType
+- applicationStatus : EnumApplicationStatus
+- applicationNumber : ApplicationNumber
+- finalSubmitDate : LocalDate
+- userAgent : String
+- remoteIp : String
+- acceptedTerms : Boolean
+- uploadedFiles : List<cy.gov.mlsi.sis.shared.model.impl.UploadedFile>
+- applicationDetails : IApplicationDetails
++ getApplicantIndividualId() : Long
 }
-class DirectoryExplorer{
-- fileHandler : FileHandler
-fileFilter : FileFilter
-+ DirectoryExplorer(fileHandler : FileHandler)
-+ explore(file : File) : void
+Application ..|> IApplication
+class MaternityDetails{
+- expectedDeliveryDate : ExpectedDeliveryDate
 }
-class ClassVisitor{
-- translator : Translator
-+ ClassVisitor(translator : Translator)
-+ visit(n : ClassOrInterfaceDeclaration, arg : Void) : void
+MaternityDetails ..|> IApplicationDetails
+class ApplicationSerializationTest{
+- objectMapper : ObjectMapper
+setUp() : void
+testBirthgrantApplicationSerialization() : void
+testMaternityApplicationSerialization() : void
+testDeserializationWithUnknownType() : void
++ {static} getTestApplication(applicationNumber : ApplicationNumber, type : EnumApplicationType) : Application
 }
-ClassVisitor --|> VoidVisitorAdapter
-class ClassDiagramConfig{
-- visitorAdapters : List<VoidVisitorAdapter<Void>>
-- showMethods : boolean
-- showAttributes : boolean
-- showColoredAccessSpecifiers : boolean
-- ClassDiagramConfig()
-+ getVisitorAdapters() : List<VoidVisitorAdapter<Void>>
-+ setVisitorAdapters(visitorAdapters : List<VoidVisitorAdapter<Void>>) : void
-+ isShowMethods() : boolean
-+ setShowMethods(showMethods : boolean) : void
-+ isShowAttributes() : boolean
-+ setShowAttributes(showAttributes : boolean) : void
-+ isShowColoredAccessSpecifiers() : boolean
-+ setShowColoredAccessSpecifiers(showColoredAccessSpecifiers : boolean) : void
+class ApplicationStatusValidator{
+- onlineApplicationRepository : OnlineApplicationRepository
++ isValid(onlineApplication : OnlineApplication, context : ConstraintValidatorContext) : boolean
+- getOriginalApplication(applicationId : Long) : OnlineApplication
 }
-class UmlTranslator{
-- classSet : Set<ClassOrInterfaceDeclaration>
-- interfaceSet : Set<ClassOrInterfaceDeclaration>
-- enumSet : Set<EnumDeclaration>
-- error : Boolean
-- config : ClassDiagramConfig
-+ UmlTranslator()
-+ setConfig(config : ClassDiagramConfig) : void
-+ addClass(c : ClassOrInterfaceDeclaration) : void
-+ addEnum(e : EnumDeclaration) : void
-+ addInterface(i : ClassOrInterfaceDeclaration) : void
-+ addField(f : FieldDeclaration) : void
-+ addMethod(d : MethodDeclaration) : void
-+ setError(b : Boolean) : void
-+ translateFile(f : File) : void
-+ toPlantUml() : String
-- writeAssociations(sb : StringBuilder) : void
-- writeClasses(sb : StringBuilder) : void
-- writeClass(c : ClassOrInterfaceDeclaration, sb : StringBuilder) : void
-- writeAttributes(c : ClassOrInterfaceDeclaration, sb : StringBuilder) : void
-- writeField(f : FieldDeclaration, sb : StringBuilder) : void
-- writeConstructors(c : ClassOrInterfaceDeclaration, sb : StringBuilder) : void
-- writeConstructor(m : ConstructorDeclaration, sb : StringBuilder) : void
-- writeMethods(c : ClassOrInterfaceDeclaration, sb : StringBuilder) : void
-- writeMethod(m : MethodDeclaration, sb : StringBuilder) : void
-- writeModifiers(modifiers : EnumSet<Modifier>, sb : StringBuilder) : void
-- writeEnumerations(sb : StringBuilder) : void
-- writeInterfaces(sb : StringBuilder) : void
-- writeInterface(c : ClassOrInterfaceDeclaration, sb : StringBuilder) : void
+ApplicationStatusValidator ..|> ConstraintValidator
+class ApplicationFactory{
++ createNew(applicationType : EnumApplicationType) : Application
++ createDetails(applicationType : EnumApplicationType) : IApplicationDetails
 }
-UmlTranslator ..|> Translator
-class InterfaceVisitor{
-- translator : Translator
-+ InterfaceVisitor(translator : Translator)
-+ visit(n : ClassOrInterfaceDeclaration, arg : Void) : void
+ApplicationFactory ..|> IApplicationFactory
+class ApplicationIndividual{
+- otherCountryContributions : List<OtherCountryContribution>
 }
-InterfaceVisitor --|> VoidVisitorAdapter
-class MainDriver{
-+ {static} main(args : String[]) : void
+ApplicationIndividual --|> Individual
+class PaternityDetails{
 }
-class Builder{
-- visitorAdapters : List<VoidVisitorAdapter<Void>>
-- showMethods : boolean
-- showAttributes : boolean
-- showColoredAccessSpecifiers : boolean
-+ withVisitor(visitor : VoidVisitorAdapter<Void>) : Builder
-+ setShowMethods(showMethods : boolean) : Builder
-+ setShowAttributes(showAttributes : boolean) : Builder
-+ setShowColoredAccessSpecifiers(showColoredAccessSpecifiers : boolean) : Builder
-+ build() : ClassDiagramConfig
+PaternityDetails ..|> IApplicationDetails
+class OtherCountryContribution{
+- insurancePeriodFrom : LocalDate
+- insurancePeriodTo : LocalDate
+- foreignCountrySiNumber : Long
+- country : Country
 }
-Builder ..|> UmlConfigBuilder
-FileHandler--"- translator" Translator
-EnumVisitor--"- translator" Translator
-DirectoryExplorer--"- fileHandler" FileHandler
-ClassVisitor--"- translator" Translator
-UmlTranslator--"- config" ClassDiagramConfig
-InterfaceVisitor--"- translator" Translator
-interface Translator{
-+ addClass(c : ClassOrInterfaceDeclaration) : void
-+ addEnum(c : EnumDeclaration) : void
-+ addInterface(i : ClassOrInterfaceDeclaration) : void
-+ addField(f : FieldDeclaration) : void
-+ addMethod(d : MethodDeclaration) : void
-+ setError(b : Boolean) : void
-+ translateFile(f : File) : void
+class BirthgrantDetails{
+- marriageDate : LocalDate
+- children : List<Individual>
+- spouse : ApplicationIndividual
 }
-interface UmlConfigBuilder{
-+ build() : ClassDiagramConfig
+BirthgrantDetails ..|> IApplicationDetails
+class ExpectedDeliveryDate{
+- value : LocalDate
++ {static} of(value : LocalDate) : ExpectedDeliveryDate
+}
+Application--"- applicant" ApplicationIndividual
+Application--"- applicationType" EnumApplicationType
+Application--"- applicationStatus" EnumApplicationStatus
+Application--"- applicationNumber" ApplicationNumber
+Application--"- applicationDetails" IApplicationDetails
+MaternityDetails--"- expectedDeliveryDate" ExpectedDeliveryDate
+ApplicationStatusValidator--"- onlineApplicationRepository" OnlineApplicationRepository
+BirthgrantDetails--"- spouse" ApplicationIndividual
+interface IApplication{
+getApplicant() : ApplicationIndividual
+setApplicant(individual : ApplicationIndividual) : void
+getApplicationType() : EnumApplicationType
+setApplicationType(applicationType : EnumApplicationType) : void
+getApplicationStatus() : EnumApplicationStatus
+setApplicationStatus(applicationStatusId : EnumApplicationStatus) : void
+getApplicationNumber() : ApplicationNumber
+setApplicationNumber(applicationNumber : ApplicationNumber) : void
+setUserAgent(userAgent : String) : void
+getUserAgent() : String
+setRemoteIp(remoteIp : String) : void
+getRemoteIp() : String
+getFinalSubmitDate() : LocalDate
+setFinalSubmitDate(submitDate : LocalDate) : void
+setAcceptedTerms(acceptedTerms : Boolean) : void
+getAcceptedTerms() : Boolean
+getUploadedFiles() : List<UploadedFile>
+setUploadedFiles(uploadedFiles : List<UploadedFile>) : void
+setApplicationDetails(applicationDetails : IApplicationDetails) : void
+getApplicationDetails() : IApplicationDetails
+}
+interface OnlineApplicationRepository{
+findUnfinishedByIndividualIdAndType(applicantCyloginUniqueIdentifier : String, applicationTypeId : Long) : Optional<OnlineApplication>
+findTempByIndividualAndApplicationNumberAndType(applicantCyloginUniqueIdentifier : String, applicationNumber : long, applicationTypeId : long) : Optional<OnlineApplication>
+deleteByapplicantCyloginUniqueIdentifier(applicantCyloginUniqueIdentifier : String) : void
+}
+OnlineApplicationRepository --|> JpaRepository
+interface IApplicationDetails{
+}
+interface IApplicationFactory{
+createNew(applicationType : EnumApplicationType) : Application
+createDetails(applicationType : EnumApplicationType) : IApplicationDetails
+}
+enum EnumApplicationStatus{
+USER_CREATED
+TEMPORARY_SAVE
+PENDING_FROM_DYA
+NOT_ELIGIBLE_CANDIDATE_FROM_DYA
+SUBMITTED
+UPDATED_APPLICATION
+APPLICATION_CANCELATION
+DOWNLOADED
+DOWNLOAD_CANCELED
+TRANSFERRED_WITH_ERROR
+UNDER_EXAMINATION
+PROCESSED
+FREEZE
+}
+enum EnumApplicationType{
+SICK_BENEFIT
+UNEMPLOYMENT
+WIDOWHOOD
+MATERNITY
+PENSION
+UPDATE_PERIOD
+BIRTHGRANT
+PATERNITY
 }
 @enduml

@@ -11,7 +11,6 @@ public class DirectoryExplorer {
         this.fileHandler=fileHandler;
     }
 
-
     FileFilter fileFilter = new FileFilter() {
         @Override
         public boolean accept(File pathname) {
