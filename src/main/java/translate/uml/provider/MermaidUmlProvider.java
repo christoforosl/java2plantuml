@@ -4,6 +4,8 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
+import lombok.NonNull;
 import translate.ITranslator;
 import translate.IUmlProvider;
 
@@ -11,6 +13,7 @@ import java.util.HashSet;
 
 public class MermaidUmlProvider implements IUmlProvider {
     private ITranslator umlTranslator;
+
 
     @Override
     public String getUML(ITranslator umlTranslator) {
@@ -41,33 +44,35 @@ public class MermaidUmlProvider implements IUmlProvider {
     private void writeAssociations(StringBuilder sb) {
 
         for(ClassOrInterfaceDeclaration c: umlTranslator.getInterfaceSet()) {
+            if(!c.getExtendedTypes().isEmpty())sb.append("%% Interface ").append(c.getName()).append(" Extensions\n");
             for (ClassOrInterfaceType e : c.getExtendedTypes()) {
                 sb.append(c.getName());
                 sb.append(" --|> ");
                 sb.append(e.getName());
                 sb.append("\n");
             }
+            if(!c.getImplementedTypes().isEmpty())sb.append("%% Interface ").append(c.getName()).append(" Implemented types\n");
             //implemented types
             for(ClassOrInterfaceType e: c.getImplementedTypes()){
-
                 sb.append(c.getName());
                 sb.append(" ..|> ");
                 sb.append(e.getName());
                 sb.append("\n");
             }
-
         }
 
         for(ClassOrInterfaceDeclaration c: umlTranslator.getClassSet()) {
+            if(!c.getExtendedTypes().isEmpty())sb.append("%% Class ").append(c.getName()).append(" Extended types\n");
             for (ClassOrInterfaceType e : c.getExtendedTypes()) {
                 sb.append(c.getName());
                 sb.append(" --|> ");
                 sb.append(e.getName());
                 sb.append("\n");
             }
+
+            if(!c.getImplementedTypes().isEmpty())sb.append("%% Class ").append(c.getName()).append(" Implemented types\n");
             //implemented types
             for(ClassOrInterfaceType e: c.getImplementedTypes()){
-
                 sb.append(c.getName());
                 sb.append(" ..|> ");
                 sb.append(e.getName());
@@ -87,22 +92,62 @@ public class MermaidUmlProvider implements IUmlProvider {
         }
 
         for(ClassOrInterfaceDeclaration c: umlTranslator.getClassSet()){
+            for(FieldDeclaration field: c.getFields()){
+                Type fieldType = field.getCommonType();
+                if (fieldType.isClassOrInterfaceType()) {
 
-            for(FieldDeclaration f: c.getFields()){
+                    ClassOrInterfaceType classType = fieldType.asClassOrInterfaceType();
+                    //System.out.println("isClassOrInterfaceType : " + classType);
+                    if (classType.getTypeArguments().isPresent()) { // is generic?
+                        classType.getTypeArguments().ifPresent(typeArgs -> {
+                            final String genericVariableType = extractAfterLastDot(typeArgs.get(0).toString());
+                            //System.out.println("Generic Type of: " + genericVariableType);
 
-                if(temp.contains(f.getVariables().get(0).getType().asString())){
-
-                    sb.append(c.getName().asString());
-                    sb.append("--");
-                    sb.append("\"");
-                    writeModifiers(f.getModifiers(),sb);
-                    sb.append(f.getVariables().get(0).getName());
-                    sb.append("\" ");
-                    sb.append(f.getVariables().get(0).getType().asString());
-                    sb.append("\n");
+                            if (temp.contains(genericVariableType)) {
+                                sb.append(c.getName().asString());
+                                sb.append(" \"1\" *-- \"*\" ");
+                                sb.append(typeArgs.get(0));
+                                sb.append("\n");
+                            }
+                        });
+                    } else { // not generic
+                        if (temp.contains(classType.asString())) {
+                            // composition relationships from c ->  field.getVariables().get(0)
+                            sb.append(c.getName().asString());
+                            if (isEnum(classType.asString())) {
+                                sb.append(" --> ");
+                            } else {
+                                sb.append(" \"1\" *-- \"1\" ");
+                            }
+                            sb.append(classType.asString());
+                            sb.append("\n");
+                        }
+                    }
+                } else {
+                    final String variableType = field.getVariables().get(0).getType().asString();
+                    if (temp.contains(variableType)) {
+                        // composition relationships from c ->  field.getVariables().get(0)
+                        sb.append(c.getName().asString());
+                        if (isEnum(variableType)) {
+                            sb.append(" --> ");
+                        } else {
+                            sb.append(" *-- ");
+                        }
+                        sb.append(variableType);
+                        sb.append("\n");
+                    }
                 }
             }
         }
+    }
+
+    private boolean isEnum(@NonNull String enumname) {
+        for (EnumDeclaration e:this.umlTranslator.getEnumSet()){
+            if(enumname.equals(e.getNameAsString())){
+                return true;
+            }
+        }
+        return false;
     }
 
     private void writeClasses(StringBuilder sb){
@@ -252,7 +297,6 @@ public class MermaidUmlProvider implements IUmlProvider {
         for(ClassOrInterfaceDeclaration c: this.umlTranslator.getInterfaceSet()){
             writeInterface(c,sb);
         }
-
     }
 
     private void writeInterface(ClassOrInterfaceDeclaration c,StringBuilder sb) {

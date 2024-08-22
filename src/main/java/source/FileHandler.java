@@ -14,8 +14,6 @@ public class FileHandler {
 
     void handle(File f){
 
-        System.out.println("File Found: " +f.getName());
-
         try {
             translator.translateFile(new File(f.getAbsolutePath()));
 
