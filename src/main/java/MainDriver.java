@@ -4,8 +4,6 @@ import translate.ClassDiagramConfig;
 import translate.IUmlProvider;
 import translate.UmlTranslator;
 import translate.uml.provider.EnumProvider;
-import translate.uml.provider.MermaidUmlProvider;
-import translate.uml.provider.PlantUmlProvider;
 import translate.uml.provider.UMLProviderFactory;
 import visitors.ClassVisitor;
 import visitors.EnumVisitor;

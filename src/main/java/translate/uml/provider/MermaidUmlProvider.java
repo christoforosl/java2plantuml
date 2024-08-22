@@ -11,7 +11,6 @@ import java.util.HashSet;
 
 public class MermaidUmlProvider implements IUmlProvider {
     private ITranslator umlTranslator;
-    private int indentLevel = 1;
 
     @Override
     public String getUML(ITranslator umlTranslator) {
@@ -206,7 +205,6 @@ public class MermaidUmlProvider implements IUmlProvider {
                 case PUBLIC -> sb.append("+");
                 case PRIVATE -> sb.append("-");
                 case PROTECTED -> sb.append("#");
-                case DEFAULT -> sb.append("");
             }
         }
 
