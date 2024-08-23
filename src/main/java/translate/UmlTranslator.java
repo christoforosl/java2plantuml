@@ -10,11 +10,15 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import lombok.Data;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+
 @Data
+@Log
 public class UmlTranslator implements ITranslator {
     private final Set<ClassOrInterfaceDeclaration> classSet;
     private Set<ClassOrInterfaceDeclaration> interfaceSet;
@@ -78,15 +82,15 @@ public class UmlTranslator implements ITranslator {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
             setError(true);
-            e.printStackTrace();
+           log.log(Level.SEVERE, "Error ", ex);
         }
     }
 
     public String toUml(){
 
-        return ((IUmlProvider)config.getUmlProvider()).getUML(this);
+        return config.getUmlProvider().getUML(this);
 
     }
 

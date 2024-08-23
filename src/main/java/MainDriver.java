@@ -54,7 +54,7 @@ public class MainDriver {
                 new DirectoryExplorer(handler).explore(resourceDir);
 
                 final File umlOutputFile = new File(sourcePath+ File.separator + "output." + umlProvider.getExtension());
-                try (FileOutputStream fos = new FileOutputStream(umlOutputFile);) {
+                try (FileOutputStream fos = new FileOutputStream(umlOutputFile)) {
                     fos.write(umlTranslator.toUml().getBytes());
                 }
                 System.out.println( enumProvider.name() + " syntax generated to output file:" + umlOutputFile.getAbsolutePath());

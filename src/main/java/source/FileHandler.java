@@ -6,10 +6,10 @@ import translate.ITranslator;
 
 import java.io.File;
 
+@Getter
 @RequiredArgsConstructor
 public class FileHandler {
 
-    @Getter
     private final ITranslator translator;
 
     void handle(File f){

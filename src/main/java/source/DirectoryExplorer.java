@@ -7,21 +7,18 @@ import java.io.FileFilter;
 @Log
 public class DirectoryExplorer {
 
-    private FileHandler fileHandler;
+    private final FileHandler fileHandler;
 
     public DirectoryExplorer (FileHandler fileHandler){
         this.fileHandler=fileHandler;
     }
 
-    FileFilter fileFilter = new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-            if (pathname.isDirectory()) {
-                return  !pathname.getAbsolutePath().endsWith(File.separator+"target") &&
-                        !pathname.getAbsolutePath().endsWith("src" + File.separator + "test");
-            }
-            return pathname.toString().endsWith(".java");
+    FileFilter fileFilter = pathname -> {
+        if (pathname.isDirectory()) {
+            return  !pathname.getAbsolutePath().endsWith(File.separator+"target") &&
+                    !pathname.getAbsolutePath().endsWith("src" + File.separator + "test");
         }
+        return pathname.toString().endsWith(".java");
     };
 
     public void explore(File file) {
