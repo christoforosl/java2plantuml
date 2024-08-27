@@ -43,17 +43,18 @@ public class MermaidUmlProvider implements IUmlProvider {
 
     private void writeAssociations(StringBuilder sb) {
 
-        for(ClassOrInterfaceDeclaration c: umlTranslator.getInterfaceSet()) {
-            if(!c.getExtendedTypes().isEmpty())sb.append("%% Interface ").append(c.getName()).append(" Extensions\n");
+        for (ClassOrInterfaceDeclaration c : umlTranslator.getInterfaceSet()) {
+            if (!c.getExtendedTypes().isEmpty()) sb.append("%% Interface ").append(c.getName()).append(" Extensions\n");
             for (ClassOrInterfaceType e : c.getExtendedTypes()) {
                 sb.append(c.getName());
                 sb.append(" --|> ");
                 sb.append(e.getName());
                 sb.append("\n");
             }
-            if(!c.getImplementedTypes().isEmpty())sb.append("%% Interface ").append(c.getName()).append(" Implemented types\n");
+            if (!c.getImplementedTypes().isEmpty())
+                sb.append("%% Interface ").append(c.getName()).append(" Implemented types\n");
             //implemented types
-            for(ClassOrInterfaceType e: c.getImplementedTypes()){
+            for (ClassOrInterfaceType e : c.getImplementedTypes()) {
                 sb.append(c.getName());
                 sb.append(" ..|> ");
                 sb.append(e.getName());
@@ -61,8 +62,8 @@ public class MermaidUmlProvider implements IUmlProvider {
             }
         }
 
-        for(ClassOrInterfaceDeclaration c: umlTranslator.getClassSet()) {
-            if(!c.getExtendedTypes().isEmpty())sb.append("%% Class ").append(c.getName()).append(" Extended types\n");
+        for (ClassOrInterfaceDeclaration c : umlTranslator.getClassSet()) {
+            if (!c.getExtendedTypes().isEmpty()) sb.append("%% Class ").append(c.getName()).append(" Extended types\n");
             for (ClassOrInterfaceType e : c.getExtendedTypes()) {
                 sb.append(c.getName());
                 sb.append(" --|> ");
@@ -70,9 +71,10 @@ public class MermaidUmlProvider implements IUmlProvider {
                 sb.append("\n");
             }
 
-            if(!c.getImplementedTypes().isEmpty())sb.append("%% Class ").append(c.getName()).append(" Implemented types\n");
+            if (!c.getImplementedTypes().isEmpty())
+                sb.append("%% Class ").append(c.getName()).append(" Implemented types\n");
             //implemented types
-            for(ClassOrInterfaceType e: c.getImplementedTypes()){
+            for (ClassOrInterfaceType e : c.getImplementedTypes()) {
                 sb.append(c.getName());
                 sb.append(" ..|> ");
                 sb.append(e.getName());
@@ -81,18 +83,18 @@ public class MermaidUmlProvider implements IUmlProvider {
         }
 
         HashSet<String> temp = new HashSet<>();
-        for(ClassOrInterfaceDeclaration c: this.umlTranslator.getClassSet()){
+        for (ClassOrInterfaceDeclaration c : this.umlTranslator.getClassSet()) {
             temp.add(c.getNameAsString());
         }
-        for(ClassOrInterfaceDeclaration c: this.umlTranslator.getInterfaceSet()){
+        for (ClassOrInterfaceDeclaration c : this.umlTranslator.getInterfaceSet()) {
             temp.add(c.getNameAsString());
         }
-        for (EnumDeclaration e:this.umlTranslator.getEnumSet()){
+        for (EnumDeclaration e : this.umlTranslator.getEnumSet()) {
             temp.add(e.getNameAsString());
         }
 
-        for(ClassOrInterfaceDeclaration c: umlTranslator.getClassSet()){
-            for(FieldDeclaration field: c.getFields()){
+        for (ClassOrInterfaceDeclaration c : umlTranslator.getClassSet()) {
+            for (FieldDeclaration field : c.getFields()) {
                 Type fieldType = field.getCommonType();
                 if (fieldType.isClassOrInterfaceType()) {
 
@@ -105,8 +107,10 @@ public class MermaidUmlProvider implements IUmlProvider {
 
                             if (temp.contains(genericVariableType)) {
                                 sb.append(c.getName().asString());
-                                sb.append(" \"1\" *-- \"*\" ");
+                                sb.append(" \"1\" --* \"*\" ");
                                 sb.append(typeArgs.get(0));
+                                sb.append(" : ");
+                                sb.append(field.getVariables().get(0));
                                 sb.append("\n");
                             }
                         });
@@ -117,7 +121,7 @@ public class MermaidUmlProvider implements IUmlProvider {
                             if (isEnum(classType.asString())) {
                                 sb.append(" --> ");
                             } else {
-                                sb.append(" \"1\" *-- \"1\" ");
+                                sb.append(" \"1\" --* \"1\" ");
                             }
                             sb.append(classType.asString());
                             sb.append("\n");
@@ -134,6 +138,20 @@ public class MermaidUmlProvider implements IUmlProvider {
                             sb.append(" *-- ");
                         }
                         sb.append(variableType);
+                        sb.append("\n");
+                    }
+                }
+            }
+        }
+        for (ClassOrInterfaceDeclaration c : umlTranslator.getClassSet()) {
+            for(MethodDeclaration m: c.getMethods()){
+                final String returnType = extractAfterLastDot(m.getType().asString());
+                if(! returnType.equals(c.getName())) {
+                    if (temp.contains(returnType)) {
+                        sb.append(c.getName().asString());
+                        sb.append(" ..> ");
+                        sb.append(returnType);
+                        sb.append(" : ").append(m.getName());
                         sb.append("\n");
                     }
                 }
@@ -246,7 +264,6 @@ public class MermaidUmlProvider implements IUmlProvider {
         sb.append("(");
 
         for(Parameter p: m.getParameters()){
-
             sb.append(p.getName());
             sb.append(" : ");
             sb.append(extractAfterLastDot(p.getType().asString()));
